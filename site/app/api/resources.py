@@ -9,6 +9,7 @@ from flask_restplus import Resource
 from flask_cors import cross_origin
 from .security import require_auth
 from .modis_robota1 import do_mcd12q1, do_mcd15a2h
+from .geoGenerator import gen_data
 from . import api_rest
 
 
@@ -22,6 +23,7 @@ class MapResources(Resource):
     """ Gets the resources available from a lat,lng """
 
     def get(self, resource_id):
+        return gen_data(), 200
         if resource_id == "mcd12q1":
             return do_mcd12q1()
         if resource_id == "mcd15a2h":

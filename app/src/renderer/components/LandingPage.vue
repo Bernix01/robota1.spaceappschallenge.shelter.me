@@ -1,10 +1,14 @@
 <template>
   <div id="wrapper">
     <!-- <img id="logo" src="~@/assets/logo.png" alt="electron-vue"> -->
-    <l-map ref="map" :zoom=13 :center="[47.413220, -1.219482]">
+    <l-map ref="map" :zoom=13 :center="[ 36.23109, 37.99964]">
       <l-tile-layer :url="url" :attribution="attribution"></l-tile-layer>
           <l-geo-json
-            :geojson="geojson"
+            :geojson="geojson1"
+            :options="goptions"
+            />
+          <l-geo-json
+            :geojson="geojson2"
             :options="goptions"
             />
     </l-map>
@@ -16,8 +20,29 @@
   import { InfoControl, ReferenceChart, ChoroplethLayer } from 'vue-choropleth'
   import L from 'leaflet'
   
-  let baseballIcon = L.icon({
+  let dropIcon = L.icon({
     iconUrl: 'static/drop.png',
+    iconSize: [32, 37],
+    iconAnchor: [16, 37],
+    popupAnchor: [0, -28]
+  })
+
+  let treeIcon = L.icon({
+    iconUrl: 'static/tree.png',
+    iconSize: [32, 37],
+    iconAnchor: [16, 37],
+    popupAnchor: [0, -28]
+  })
+
+  let urbanIcon = L.icon({
+    iconUrl: 'static/shelter.png',
+    iconSize: [32, 37],
+    iconAnchor: [16, 37],
+    popupAnchor: [0, -28]
+  })
+
+  let emptyIcon = L.icon({
+    iconUrl: 'static/empty.png',
     iconSize: [32, 37],
     iconAnchor: [16, 37],
     popupAnchor: [0, -28]
@@ -33,7 +58,31 @@
   }
 
   function getPointToLayerFunction (feature, latlng) {
-    return L.marker(latlng, {icon: baseballIcon})
+    let a = L.marker(latlng, {icon: dropIcon})
+    let b = L.marker(latlng, {icon: treeIcon})
+    let c = L.marker(latlng, {icon: urbanIcon})
+    let d = L.marker(latlng, {icon: emptyIcon})
+    let e = L.marker(latlng, {icon: emptyIcon})
+    switch (feature.properties.values) {
+      case 10:
+        return a
+      case 7:
+        return b
+      case 15:
+        return b
+      case 5:
+        return c
+      case 11:
+        return d
+      case 0:
+        return e
+      case 6:
+        return b
+      case 12:
+        return b
+      default:
+        return b
+    }
   }
 
   export default {
@@ -60,7 +109,7 @@
           console.log('success', position)
           this.$http.get('/map-resources', {params: {lat: position.coords.latitude, lng: position.coords.longitude}}).then(response => {
             // get body data
-            this.geojson = response.data
+            this.geojson1 = response.data
           }, response => {
             // error callback
           })
@@ -68,9 +117,9 @@
         let error = (err) => {
           console.log(err)
           console.log('error')
-          this.$http.get('/map-resources', {params: {lat: 5.57225, lng: 32.63201}}).then(response => {
+          this.$http.get('/map-resources/mcd15a2h', {params: {lat: 5.57225, lng: 32.63201}}).then(response => {
             // get body data
-            this.geojson = response.data
+            this.geojson1 = response.data
           }, response => {
             // error callback
             console.log(response.error)
@@ -98,19 +147,8 @@
         onEachFeature: onEachFeatureFunction,
         pointToLayer: getPointToLayerFunction
       },
-      apiRes: {
-        trees: [{
-          lat: 47.413220,
-          lng: -1.219482,
-          weight: 0.3
-        }],
-        water: [{
-          lat: 47.423220,
-          lng: -1.219482,
-          weight: 0.7
-        }]
-      },
-      geojson: null,
+      geojson1: null,
+      geojson2: null,
       fillColor: '#e4ce7f',
       map: null,
       url: 'https://{s}.tile.osm.org/{z}/{x}/{y}.png',

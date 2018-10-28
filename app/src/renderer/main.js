@@ -9,7 +9,7 @@ if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 process.env.GOOGLE_API_KEY = 'AIzaSyDm5y69ZnedXOyK2YWxieluzQSDf354vCg'
 Vue.http = Vue.prototype.$http = axios.create({
   baseURL: 'http://localhost:5000/api',
-  timeout: 1000,
+  timeout: 5000,
   headers: {'X-Custom-Header': 'foobar'}
 })
 Vue.config.productionTip = false

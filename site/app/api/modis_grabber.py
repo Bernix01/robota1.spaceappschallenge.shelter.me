@@ -1,8 +1,8 @@
 import requests
-LAT = "36.23109"
-LNG = "37.99964"
-START_DATE = "2008-01-01"
-END_DATE = "2009-12-31"
+LAT = "34.54344"
+LNG = "36.20352"
+START_DATE = "A2017001"
+END_DATE = "A2017001"
 BASE_URL = "https://modis.ornl.gov/rst/api/v1/"
 
 def find_in_products(products, start_date, end_date):
@@ -27,13 +27,14 @@ def get_subsets(product, start_date, end_date, lat=LAT, lng=LNG):
     r_data = requests.get(BASE_URL+product + "/subset", params={
                           "latitude": lat, "longitude": lng, "startDate": start_date, "endDate": end_date, "kmAboveBelow": 3, "kmLeftRight": 3})
     data = r_data.json()
+    print("Got response from MODIS" + str(r_data.status_code))
     if r_data.status_code == 200:
         return data
     return None
 
-def grab_mcd15a2h(let,lng):
+def grab_mcd15a2h(let=None,lng=None):
     return get_subsets("MCD15A2H",START_DATE,END_DATE)
 
-def grab_mcd12q1(let,lng):
+def grab_mcd12q1(let=None,lng=None):
     return get_subsets("MCD12Q1",START_DATE,END_DATE)
     

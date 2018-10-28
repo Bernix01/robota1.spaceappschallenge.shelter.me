@@ -1,4 +1,4 @@
-from pyproj import Proj,transform
+from pyproj import Proj, transform
 import json
 import geojson
 import math
@@ -10,13 +10,13 @@ def xy_to_latlon(x, y, dst='epsg:4326'):
     #      (might also be lon,lat...)
     import pyproj
 
-    proj_latlon = pyproj.Proj(init=dst) # default: WGS84
-    proj_etrs = pyproj.Proj(init='epsg:3067') # ETRS-TM35FIN
+    proj_latlon = pyproj.Proj(init=dst)  # default: WGS84
+    proj_etrs = pyproj.Proj(init='epsg:3067')  # ETRS-TM35FIN
 
     return pyproj.transform(proj_etrs, proj_latlon, x, y)
 
 
-def meterDistance(Idxo,Idxf,cellSize):
+def meterDistance(Idxo, Idxf, cellSize):
     dividedCellCenterDistance = cellSize/5
     if Idxo < Idxf:
         sign = -1
@@ -29,7 +29,8 @@ def meterDistance(Idxo,Idxf,cellSize):
         distanceMeters = 0
     else:
         distanceIdx = abs(Idxo - Idxf)
-        distanceMeters = ((distanceIdx-1)*sign*dividedCellCenterDistance)+distanceIdx*sign*dividedCellCenterDistance
+        distanceMeters = ((distanceIdx-1)*sign*dividedCellCenterDistance) + \
+            distanceIdx*sign*dividedCellCenterDistance
     return distanceMeters
 
 
@@ -46,21 +47,25 @@ def toGeoJson(file):
 
     values = []
     for content in file['subset']:
+        print(content)
         data = content['data']
-        location = []
         for x in range(row):
             for y in range(col):
 
                 value = data[x+y]
-                dmX = meterDistance(medX,x,cellsize)
-                dmY = meterDistance(medY,y,cellsize)
+                dmX = meterDistance(medX, x, cellsize)
+                dmY = meterDistance(medY, y, cellsize)
 
-                Dx, Dy = xy_to_latlon(dmX,dmY)
+                Dx, Dy = xy_to_latlon(dmX, dmY)
                 Nlong = longuitude + Dx/10000
                 Nlat = latitude + Dy
 
-                location.append((Nlat,Nlong))
+                # location.append(Nlat,Nlong)
 
-                values.append(geojson.Feature(geometry=geojson.Point(location),
-                            properties = {'values' : value}))
-    return geojson.GeometryCollection(values)
+                values.append(geojson.Feature(geometry=geojson.Point((Nlat, Nlong)),
+                                              properties={'values': value}))
+    result = geojson.FeatureCollection(values)
+    Sruta = "Sdata.json"
+    with open(Sruta, 'w') as f:
+        geojson.dump(result, f)
+    return result
